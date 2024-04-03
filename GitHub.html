@@ -1,0 +1,151 @@
+<html>
+    <head>
+        <title>GitHub</title>
+        <style>
+            body {
+                background-color: rgb(242, 242, 242);
+                font-family: sans-serif;
+                padding: 0 30%;
+            }
+            .search-container {
+                display: flex;
+                align-items: center;
+            }
+            .logo {
+                width: 25px;
+                height: auto;
+                margin-left: 5px;
+                cursor: pointer;
+            }
+            input[type="text"] {
+                padding: 5px;
+                background: none;
+                border: none;
+            }
+            hr {
+                border: 1px solid rgb(204, 200, 200);
+            }
+            .container {
+                display: grid;
+                grid-template-columns: repeat(2, auto);
+                column-gap: 25px;
+                width: 100%;
+            }
+            .avatar {
+                width: 125px;
+                height: auto;
+                margin-top: 20px;
+            }
+            .container-info {
+                display: grid;
+                grid-template-rows: repeat(2, auto);
+                width: 100%;
+            }
+            th {
+                border-bottom: 1px solid rgb(204, 200, 200);
+                text-align: left;
+                font-size: 14;
+                padding: 10px;
+                color: rgb(97, 96, 96);
+            }
+            td {
+                text-align: right;
+                border-bottom: 1px solid rgb(204, 200, 200);
+                font-weight: bold;
+                font-size: 13;
+                color: rgb(119, 119, 119);
+            }
+            th:last-child {
+                text-align: right;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="search-container">
+            <input id="searchInput" type="text" placeholder="Search login">
+            <img src="поиск.png" alt="Logo" class="logo">
+        </div>
+        <hr>
+        <div class="container">
+            <div class="container-info">
+                <img id="avatar" src="нет-изображения.png" alt="Avatar" class="avatar">
+                <table style="grid-row: 2;">
+                    <tr>
+                        <th>Name: </th>
+                        <td id="name">Name</td>
+                    </tr>
+                    <tr>
+                        <th>Login: </th>
+                        <td id="login">Login</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="container-info">
+                <table>
+                    <tr>
+                        <th>Url to github: </th>
+                        <td id="urlgit"><a href=""></a></td>
+                    </tr>
+                    <tr>
+                        <th>Blog: </th>
+                        <td id="blog"><a href=""></a></td>
+                    </tr>
+                    <tr>
+                        <th>City: </th>
+                        <td id="city">City</td>
+                    </tr>
+                    <tr>
+                        <th>Email: </th>
+                        <td id="email">Email</td>
+                    </tr>
+                    <tr>
+                        <th>Followers: </th>
+                        <td id="followers">0</td>
+                    </tr>
+                    <tr>
+                        <th>Following: </th>
+                        <td id="following">0</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <script>
+            function searchUser() {
+                const username = document.getElementById("searchInput").value;
+                const url = `https://api.github.com/users/${username}`;
+                
+                fetch(url)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        document.getElementById("avatar").src = data.avatar_url;
+                        document.getElementById("name").innerText = data.name || "No Name";
+                        document.getElementById("login").innerText = data.login || "No Login";
+                        document.getElementById("urlgit").innerHTML = `<a href="${data.html_url}">${data.html_url}</a>`;
+                        document.getElementById("blog").innerHTML = data.blog ? `<a href="${data.blog}">${data.blog}</a>` : "No Blog";
+                        document.getElementById("city").innerText = data.location || "No City";
+                        document.getElementById("email").innerText = data.email || "No Email";
+                        document.getElementById("followers").innerText = data.followers || "No Followers";
+                        document.getElementById("following").innerText = data.following || "No Following";
+                    })
+                    .catch(error => {
+                        console.error('There was a problem with the fetch operation:', error);
+                        document.getElementById("avatar").src = "";
+                        document.getElementById("name").innerText = "No user found";
+                        document.getElementById("login").innerText = "";
+                        document.getElementById("urlgit").innerHTML = "";
+                        document.getElementById("blog").innerHTML = "";
+                        document.getElementById("city").innerText = "";
+                        document.getElementById("email").innerText = "";
+                        document.getElementById("followers").innerText = "";
+                        document.getElementById("following").innerText = "";
+                    });
+            }
+            document.querySelector('.logo').addEventListener('click', searchUser);
+        </script>
+    </body>
+</html>
