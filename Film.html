@@ -1,0 +1,341 @@
+<html>
+<head>
+    <title>Film</title>
+    <style>
+        body {
+            background-color: rgb(247, 224, 202);
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding: 0 20%;
+        }
+        .film-choose-form {
+            text-align: center;
+            padding: 20px;
+            border: 1px solid rgb(160, 156, 156);
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        button {
+            width: 100%;
+            border-radius: 5px;
+            padding: 5px;
+            border: 1px solid rgb(160, 156, 156);
+        }
+        input[type="text"] {
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid rgb(160, 156, 156);
+        }
+        select {
+            padding: 5px;
+            border-radius: 5px;
+            width: 100%;
+            border: 1px solid rgb(160, 156, 156);
+        }
+        .container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        label {
+            font-weight: bold;
+        }
+        .container label {
+            margin-right: 10px;
+        }
+        h3 {
+            text-align: center;
+        }
+        .films {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+        }
+        .film {
+            text-align: left;
+            padding: 10px;
+            border: 1px solid rgb(160, 156, 156);
+            border-radius: 5px;
+            width: 30%;
+            margin-bottom: 20px;
+        }
+        .film img {
+            width: 80%;
+            height: auto;
+        }
+        p {
+            font-size: 14px;
+        }
+        .year {
+            font-size: 16px;
+        }
+        .pagination {
+            margin-top: 20px;
+        }
+        .pagination button {
+            margin-right: 5px;
+            cursor: pointer;
+            width: 30px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: rgb(247, 224, 202);
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 700px;
+            text-align: center;
+        }
+        .modal-info {
+            padding: 20px;
+            border: 1px solid rgb(160, 156, 156);
+            border-radius: 5px;
+            display: grid;
+            grid-template-columns: repeat(2, auto);
+            column-gap: 10px;
+            width: 95%;
+        }
+        .imah {
+            width: 220px;
+            height: auto;
+            margin-top: 20px;
+        }
+        .container-info {
+            display: grid;
+            grid-template-rows: repeat(2, auto);
+            width: 100%;
+        }
+        th, td {
+            text-align: left;
+            font-size: 14;
+            padding: 10px;
+            color: rgb(97, 96, 96);
+        }
+        th {
+            font-weight: bold;
+            font-size: 14;
+        }
+        .close {
+            position: absolute;
+            cursor: pointer;
+            font-size: 20px;
+            color: #555;
+            background-color: transparent;
+            border: none;
+        }
+        .close:hover {
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <h3>Search:</h3>
+        <form class="film-choose-form">
+            <div class="container">
+                <label for="title">Title:</label>
+                <input type="text" id="title">
+            </div>
+            <div class="container">
+                <label for="type">Type:</label>
+                <select id="type" name="type">
+                    <option value="movie">Movie</option>
+                    <option value="series">Series</option>
+                    <option value="episode">Episode</option>
+                </select>
+            </div>
+            <button type="submit">Search</button>
+        </form>
+    </div>
+    <div id="films-container">
+        <h3>Films:</h3>
+        <div class="films"></div>
+    </div>
+    <div class="pagination"></div>
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="modal-info" class="modal-info">
+                <img id="image-modal-film" src="нет-изображения.png" alt="ImageFilm" class="imah">
+                <table>
+                    <tr>
+                        <th>Title: </th>
+                        <td id="title-modal">Title</td>
+                    </tr>
+                    <tr>
+                        <th>Released: </th>
+                        <td id="date-modal">Date</td>
+                    </tr>
+                    <tr>
+                        <th>Genre: </th>
+                        <td id="genre-modal">Genre</td>
+                    </tr>
+                    <tr>
+                        <th>Country: </th>
+                        <td id="country-modal">Country</td>
+                    </tr>
+                    <tr>
+                        <th>Director: </th>
+                        <td id="director-modal">Director</td>
+                    </tr>
+                    <tr>
+                        <th>Writers: </th>
+                        <td id="writers-modal">Writers</td>
+                    </tr>
+                    <tr>
+                        <th>Actors: </th>
+                        <td id="actors-modal">Actors</td>
+                    </tr>
+                    <tr>
+                        <th>Awards: </th>
+                        <td id="awards-modal">Awards</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.querySelector('.film-choose-form');
+        const filmContainer = document.querySelector('.films');
+        const paginationContainer = document.querySelector('.pagination');
+        const titleInput = document.querySelector('#title');
+        const typeSelect = document.querySelector('#type');
+        const modal = document.getElementById('modal');
+        const closeButton = document.querySelector('.close');
+        const modalInfo = document.getElementById('modal-info');
+        let currentPage = 1;
+        let totalPages = 0;
+    
+        function fetchData(title, type, page = 1) {
+            const apiKey = '62593e3c';
+            const url = `http://www.omdbapi.com/?apikey=${apiKey}&s=${title}&type=${type}&page=${page}`;
+    
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.Response === "True") {
+                        displayFilms(data.Search.slice(0, 3));
+                        updatePagination(+data.totalResults);
+                    } else {
+                        filmContainer.innerHTML = "<p>Movie not found!</p>";
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    
+        function displayFilms(films) {
+            filmContainer.innerHTML = "";
+            films.forEach(film => {
+                const filmElement = document.createElement('div');
+                filmElement.classList.add('film');
+    
+                const imgElement = document.createElement('img');
+                imgElement.src = film.Poster === "No" ? "нет-изображения.png" : film.Poster;
+                imgElement.alt = film.Title;
+    
+                const infoElement = document.createElement('div');
+                infoElement.style.marginBottom = "0";
+    
+                const typeElement = document.createElement('p');
+                typeElement.textContent = film.Type;
+                const titleElement = document.createElement('label');
+                titleElement.style.fontSize = "14px";
+                titleElement.textContent = film.Title;
+                const yearElement = document.createElement('p');
+                yearElement.classList.add('year');
+                yearElement.textContent = film.Year;
+    
+                const detailsButton = document.createElement('button');
+                detailsButton.textContent = 'Details';
+                detailsButton.setAttribute('data-imdbid', film.imdbID);
+                detailsButton.addEventListener('click', function() {
+                    openModal(film.imdbID);
+                });
+    
+                infoElement.appendChild(typeElement);
+                infoElement.appendChild(titleElement);
+                infoElement.appendChild(yearElement);
+                infoElement.appendChild(detailsButton);
+    
+                filmElement.appendChild(imgElement);
+                filmElement.appendChild(infoElement);
+    
+                filmContainer.appendChild(filmElement);
+            });
+        }
+    
+        function displayPagination(totalPages) {
+            paginationContainer.innerHTML = "";
+            for (let i = 1; i <= totalPages; i++) {
+                const pageButton = document.createElement('button');
+                pageButton.textContent = i;
+                pageButton.addEventListener('click', function () {
+                    currentPage = i;
+                    fetchData(titleInput.value.trim(), typeSelect.value, currentPage);
+                });
+                paginationContainer.appendChild(pageButton);
+            }
+        }
+    
+        function updatePagination(totalResults) {
+            totalPages = Math.ceil(totalResults / 10);
+            displayPagination(totalPages);
+        }
+    
+        function resetPagination() {
+            currentPage = 1;
+            totalPages = 0;
+            displayPagination(totalPages);
+        }
+    
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
+            resetPagination();
+            fetchData(titleInput.value.trim(), typeSelect.value);
+        });
+    
+        fetchData(titleInput.value.trim(), typeSelect.value);
+    
+        closeButton.addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+    
+        function openModal(imdbID) {
+            const apiKey = '62593e3c';
+            const url = `http://www.omdbapi.com/?apikey=${apiKey}&i=${imdbID}`;
+    
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('image-modal-film').src = data.Poster === "No" ? "нет-изображения.png" : data.Poster;
+                    document.getElementById('title-modal').textContent = data.Title;
+                    document.getElementById('date-modal').textContent = data.Released;
+                    document.getElementById('genre-modal').textContent = data.Genre;
+                    document.getElementById('country-modal').textContent = data.Country;
+                    document.getElementById('director-modal').textContent = data.Director;
+                    document.getElementById('writers-modal').textContent = data.Writer;
+                    document.getElementById('actors-modal').textContent = data.Actors;
+                    document.getElementById('awards-modal').textContent = data.Awards;
+    
+                    modal.style.display = 'block';
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>
